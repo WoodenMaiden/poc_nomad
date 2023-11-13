@@ -9,6 +9,9 @@ Vagrant.configure("2") do |config|
   ENV['DEBIAN_FRONTEND'] = "noninteractive"
   ENV['NOMAD_ADDR'] = "http://localhost:4646"
 
+  N = 3
+  BASE_IP = "123.123.123"
+
   config.vm.box = "debian/buster64"
 
   config.vm.provision :ansible do |ansible|
@@ -21,14 +24,14 @@ Vagrant.configure("2") do |config|
   config.vm.define "nomad-server" do |server|
     server.vm.hostname = "nomad-server"
     server.vm.network "forwarded_port", guest: 4646, host: 8081
-    server.vm.network "private_network", ip: "123.123.123.254"
+    server.vm.network "private_network", ip: "#{BASE_IP}.254"
 
   end
 
-  (1..3).each do |i|
+  (1..N).each do |i|
     config.vm.define "nomad-client#{i}" do |client|
       client.vm.hostname = "nomad-client#{i}"
-      client.vm.network "private_network", ip: "123.123.123.#{i+1}"
+      client.vm.network "private_network", ip: "#{BASE_IP}.#{i+1}"
     end
   end
 end

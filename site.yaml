@@ -1,56 +1,71 @@
 ---
-# - name: Install dependencies
-#   hosts: all
-#   become: true
-#   tasks:
-#     - name: Install aptitude
-#       apt:
-#         name: aptitude
-#         state: latest
-#         update_cache: true
-
-#     - name: Install required system packages
-#       apt:
-#         pkg:
-#           - apt-transport-https
-#           - ca-certificates
-#           - curl
-#           - software-properties-common
-#           - python3-pip
-#           - virtualenv
-#           - python3-setuptools
-#         state: latest
-#         update_cache: true
-
-#     - name: Add Docker GPG apt Key
-#       apt_key:
-#         url: https://download.docker.com/linux/debian/gpg
-#         state: present
-
-#     - name: Add Docker Repository
-#       apt_repository:
-#         repo: deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com bookworm main
-#         state: present
-
-#     - name: Update apt and install docker-ce
-#       apt:
-#         name:
-#           - docker-ce
-#           - docker-ce-cli
-#           - containerd.io
-#           - docker-buildx-plugin
-#           - openjdk-17-jre
-#         state: latest
-#         update_cache: true
-
-
-- name: Install and setup nomad
+- name: Install dependencies
   hosts: nomad_instances
+  become: true
+  become_user: root
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/debian buster stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - openjdk-11-jre
+        state: latest
+        update_cache: true
+
+    - name: Enable docker service
+      service:
+        name: docker
+        enabled: yes
+        state: started
+
+- name: Start nomad server
+  hosts: server
   become: true
   become_user: root
   roles:
     - { role: brianshumate.nomad }
-
   tasks:
-    - name: install nomad
+    - name: Start service
+      service: name=nomad state=started enabled=yes
+
+- name: Start Nomad client
+  hosts: client
+  become: true
+  become_user: root
+  roles:
+    - { role: brianshumate.nomad }
+  tasks:
+    - name: Start service
       service: name=nomad state=started enabled=yes
