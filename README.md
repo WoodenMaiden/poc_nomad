@@ -6,14 +6,27 @@ A simple POC to test Nomad and Consul, for AgroLD.
 
 - [Vagrant](https://developer.hashicorp.com/vagrant)
 - [Ansible](https://www.ansible.com/)
-- KVM or VirtualBox
+- libvirt or VirtualBox
+
+To install the nomad installation role run the following command:
+
+```bash
+ansible-galaxy install brianshumate.nomad
+```
 
 ## Launch the POC
 
 ```bash
 vagrant up
+
+# To destroy the VMs
+vargrant destroy
 ```
 
+> [!NOTE]
+> You might need to give root password, especially if you are using libvirt.
+
+## Errors that can occur
 If you have an error like this 
 
 ```
@@ -24,11 +37,22 @@ mount -o vers=4 192.168.121.1:/home/yann/Documents/sources/ird/poc_nomad /vagran
 
 Stdout from the command:
 
-
-
 Stderr from the command:
 
 mount: /vagrant: bad option; for several filesystems (e.g. nfs, cifs) you might need a /sbin/mount.<type> helper program.
 ```
 
 Try solution given by [this link](https://ostechnix.com/vagrant-up-hangs-when-mounting-nfs-shared-folders-how-to-fix/)
+
+Ansible may not install roles into /etc/ansible/roles, but in ~/.ansible/roles. In this case, you need to add the following line to your ~/.ansible.cfg file:
+
+```
+[defaults]
+roles_path = ~/.ansible/roles
+```
+
+netaddr module may not installed by default, you need to install it with pip3
+
+```
+pip3 install netaddr
+```

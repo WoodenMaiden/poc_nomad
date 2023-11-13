@@ -9,13 +9,14 @@ Vagrant.configure("2") do |config|
   ENV['DEBIAN_FRONTEND'] = "noninteractive"
   ENV['NOMAD_ADDR'] = "http://localhost:4646"
 
-  config.vm.box = "debian/bookworm64"
+  config.vm.box = "debian/buster64"
 
-  # config.vm.provision :ansible do |ansible|
-  #   ansible.inventory_path = "vagrant_ansible_inventory"
+  config.vm.provision :ansible do |ansible|
+    ansible.inventory_path = "vagrant_ansible_inventory"
 
-  #   ansible.playbook = "install_runtimes.yaml"
-  # end
+    ansible.playbook = "site.yaml"
+    ansible.compatibility_mode = "2.0"
+  end
 
   config.vm.define "nomad-server" do |server|
     server.vm.hostname = "nomad-server"
@@ -27,7 +28,7 @@ Vagrant.configure("2") do |config|
   (1..3).each do |i|
     config.vm.define "nomad-client#{i}" do |client|
       client.vm.hostname = "nomad-client#{i}"
-      client.vm.network "private_network", ip: "123.123.123.#{i}"
+      client.vm.network "private_network", ip: "123.123.123.#{i+1}"
     end
   end
 end
