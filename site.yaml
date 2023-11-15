@@ -61,7 +61,7 @@
         nomad_bind_address: 0.0.0.0
         nomad_docker_enable: true
         nomad_cni_enable: true
-        nomad_use_consul: true # Had to enable this because then the role would use a buggy formatting method
+        # nomad_use_consul: true # Had to enable this because then the role would use a buggy formatting method
                                # + consul could be interesting
   tasks:
     - name: Start service
@@ -77,7 +77,7 @@
         nomad_version: 1.6.0
         nomad_docker_enable: true
         nomad_cni_enable: true
-        nomad_use_consul: true
+        # nomad_use_consul: true
   tasks:
     - name: Start service
       service: name=nomad state=started enabled=yes

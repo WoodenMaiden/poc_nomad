@@ -24,7 +24,7 @@ vargrant destroy
 ```
 
 > [!NOTE]
-> You might need to give root password, especially if you are using libvirt.
+> You might need to give root password, especially if you are using libvirt. To avoid this, you can add your user to the `libvirt` group.
 
 ## Errors that can occur
 If you have an error like this 
@@ -43,13 +43,6 @@ mount: /vagrant: bad option; for several filesystems (e.g. nfs, cifs) you might 
 ```
 
 Try solution given by [this link](https://ostechnix.com/vagrant-up-hangs-when-mounting-nfs-shared-folders-how-to-fix/)
-
-Ansible may not install roles into /etc/ansible/roles, but in ~/.ansible/roles. In this case, you need to add the following line to your ~/.ansible.cfg file:
-
-```
-[defaults]
-roles_path = ~/.ansible/roles
-```
 
 netaddr module may not installed by default, you need to install it with pip3
 
