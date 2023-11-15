@@ -11,6 +11,11 @@ Vagrant.configure("2") do |config|
 
   config.vm.box = "debian/buster64"
 
+  config.vm.provision :shell, inline: <<-SHELL
+    mkdir /etc/docker
+    echo '{ "insecure-registries": [ "10.9.2.21:8080" ] }' > /etc/docker/daemon.json
+  SHELL
+
   config.vm.provision :ansible do |ansible|
 
     ansible.playbook = "site.yaml"
