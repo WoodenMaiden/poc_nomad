@@ -1,5 +1,6 @@
 ---
 - name: Install dependencies
+  any_errors_fatal: true
   hosts: nomad_instances
   become: true
   become_user: root
@@ -52,32 +53,47 @@
 
 - name: Start nomad server
   hosts: server
+  any_errors_fatal: true
   become: true
   become_user: root
+  pre_tasks:
+    - name: Set server variables 
+      set_fact:
+        a: "{{ hostvars['nomad-server'].ansible_host }}"
+
   roles:
     - role: brianshumate.nomad
       vars:
-        nomad_version: 1.6.0
+        # nomad_advertise_address: ""
         nomad_bind_address: 0.0.0.0
-        nomad_docker_enable: true
         nomad_cni_enable: true
-        # nomad_use_consul: true # Had to enable this because then the role would use a buggy formatting method
-                               # + consul could be interesting
-  tasks:
-    - name: Start service
-      service: name=nomad state=started enabled=yes
+        # nomad_consul_token: token
+        nomad_docker_enable: true
+        # nomad_use_consul: true
+        nomad_version: 1.6.0
 
 - name: Start Nomad client
   hosts: client
+  any_errors_fatal: true
   become: true
   become_user: root
   roles:
     - role: brianshumate.nomad
       vars:
-        nomad_version: 1.6.0
         nomad_docker_enable: true
+        # nomad_consul_token: token
         nomad_cni_enable: true
         # nomad_use_consul: true
+        nomad_version: 1.6.0
+
+- name: Enable services
+  any_errors_fatal: true
+  hosts: nomad_instances
+  become: true
+  become_user: root  
   tasks:
     - name: Start service
-      service: name=nomad state=started enabled=yes
+      service: 
+        name: nomad 
+        state: started 
+        enabled: yes
