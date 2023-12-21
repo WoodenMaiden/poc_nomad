@@ -56,12 +56,13 @@
   any_errors_fatal: true
   become: true
   become_user: root
-  pre_tasks:
-    - name: Set server variables 
-      set_fact:
-        a: "{{ hostvars['nomad-server'].ansible_host }}"
-
   roles:
+    - role: brianshumate.consul
+      vars:
+        consul_version: 1.17.1
+        consul_install_dependencies: false
+        consul_client_address: 0.0.0.0
+
     - role: brianshumate.nomad
       vars:
         # nomad_advertise_address: ""
@@ -70,7 +71,7 @@
         # nomad_consul_token: token
         nomad_docker_enable: true
         # nomad_use_consul: true
-        nomad_version: 1.6.0
+        nomad_version: 1.7.2
 
 - name: Start Nomad client
   hosts: client
@@ -78,22 +79,27 @@
   become: true
   become_user: root
   roles:
+    - role: brianshumate.consul
+      vars:
+        consul_version: 1.17.1
+        consul_install_dependencies: false
+
     - role: brianshumate.nomad
       vars:
         nomad_docker_enable: true
         # nomad_consul_token: token
         nomad_cni_enable: true
         # nomad_use_consul: true
-        nomad_version: 1.6.0
+        nomad_version: 1.7.2
 
 - name: Enable services
   any_errors_fatal: true
   hosts: nomad_instances
   become: true
-  become_user: root  
+  become_user: root
   tasks:
     - name: Start service
-      service: 
-        name: nomad 
-        state: started 
+      service:
+        name: nomad
+        state: started
         enabled: yes

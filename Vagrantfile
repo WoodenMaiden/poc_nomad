@@ -7,6 +7,7 @@ Vagrant.configure("2") do |config|
 
   N_CLIENTS = 3
   BASE_IP = "123.123.123"
+  TOKEN = rand(36**20).to_s(36) # 20 character random string
 
   config.vm.box = "debian/buster64"
 
@@ -30,12 +31,24 @@ Vagrant.configure("2") do |config|
       "client" => client_group_members,
       "server" => ["nomad-server"],
       "nomad_instances" => instances,
+      "consul_instances" => instances,
+      "consul_instances:vars" => {
+        "consul_acl_token" => TOKEN,
+      },
       "client:vars" => {
-        "nomad_node_role" => "client"
+        "nomad_node_role" => "client",
+
+        "consul_node_role" => "client",
+        "consul_acl_enable" => true,
       },
       "server:vars" => {
         "nomad_node_role" => "server",
-        "nomad_advertise_address" => "#{BASE_IP}.254"
+        "nomad_advertise_address" => "#{BASE_IP}.254",
+        "nomad_consul_address" => "#{BASE_IP}.254",
+
+        "consul_acl_enable" => true,
+        "consul_node_role" => "bootstrap",
+        "consul_advertise_address" => "#{BASE_IP}.254",
       }
     }
   end
@@ -50,7 +63,7 @@ Vagrant.configure("2") do |config|
   (1..N_CLIENTS).each do |i|
     config.vm.define "nomad-client#{i}" do |client|
       client.vm.hostname = "nomad-client#{i}"
-      client.vm.network "private_network", ip: "#{BASE_IP}.#{i}"
+      client.vm.network "private_network", ip: "#{BASE_IP}.#{i+1}"
     end
   end
 end
